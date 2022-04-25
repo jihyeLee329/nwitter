@@ -1,6 +1,8 @@
+import { getDownloadURL } from '@firebase/storage';
 import Nweet from 'components/Nweet';
-import { dbService } from 'fbase';
+import { dbService, storageService } from 'fbase';
 import React, { useState ,useEffect} from 'react';
+import {v4 as uuidv4} from 'uuid';
 
 const Home = ({userObj})=>{
     const [nweet, setNweet] = useState("");
@@ -22,12 +24,21 @@ const Home = ({userObj})=>{
     },[]);
     const onSubmit = async (event) =>{
         event.preventDefault();
-        await dbService.collection("nweets").add({
-            text:nweet, //현재 이 nweet은 state의 상태 값 nweet 임 
-            createdAt : Date.now(),
-            creatorId:userObj.uid
-        });
+        let attachmentURL = "";
+      if(attachment !== ""){
+        const attachmentRef = storageService.ref().child(`${userObj.uid}/${uuidv4()}`);
+        const response = await attachmentRef.putString(attachment, "data_url");
+        attachmentURL = await response.ref.getDownloadURL();
+      }
+      const nweetObj = {
+        text:nweet, //현재 이 nweet은 state의 상태 값 nweet 임 
+        createdAt : Date.now(),
+        creatorId:userObj.uid,
+        attachmentURL
+   }
+    await dbService.collection("nweets").add(nweetObj);
         setNweet("");
+        setAttachment("");
     }
     const onChange = (event) =>{
         const{
