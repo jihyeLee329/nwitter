@@ -1,9 +1,7 @@
 import { authService, dbService } from "fbase";
 import { useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
-import {updateProfile} from '@firebase/auth';
-
-
+import { updateProfile } from "@firebase/auth";
 
 const Profile = ({ userObj, refreshUser }) => {
  const navigate = useNavigate();
@@ -39,28 +37,43 @@ const Profile = ({ userObj, refreshUser }) => {
  const onSubmit = async (e) => {
   // fireStore 에서 collection(users라 불리는)은
   // 유저에 대해 아이디 하나당 도뮤컨트 하나만 생성 가능
-  
+
   e.preventDefault();
   if (userObj.displayName !== newDisplayName) {
    //파이어 베이스 콘솔에서 Authentication 에 유저를 두고
    // fireStore에 다른 콜렉션을 만들고, 이 콜렉션은 유저 프로필을 가질거임
-     await updateProfile(authService.currentUser, { displayName: newDisplayName });
-      refreshUser();
+   await updateProfile(authService.currentUser, {
+    displayName: newDisplayName,
+   });
+   refreshUser();
   }
  };
 
  return (
   <>
-   <form  onSubmit={onSubmit}>
-    <input
-     type="text"
-     value={newDisplayName}
-     placeholder="Display name"
-     onChange={onChange}
-    />
-    <input type="submit" value="Update Profile"/>
-   </form>
-   <button onClick={onLogOutClick}>Log Out</button>
+   <div className="container">
+    <form onSubmit={onSubmit} className="profileForm">
+     <input
+      onChange={onChange}
+      type="text"
+      autoFocus
+      placeholder="Display name"
+      value={newDisplayName}
+      className="formInput"
+     />
+     <input
+      type="submit"
+      value="Update Profile"
+      className="formBtn"
+      style={{
+       marginTop: 10,
+      }}
+     />
+    </form>
+    <span className="formBtn cancelBtn logOut" onClick={onLogOutClick}>
+     Log Out
+    </span>
+   </div>
   </>
  );
 };
